@@ -3,32 +3,119 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Solver {
 	private static final String PROBLEM = "d-small";
 
-	// TODO Modify for sub-class of Case
-	private List<SubCase> cases = new ArrayList<SubCase>();
+	private List<War> cases = new ArrayList<War>();
 
-	private class SubCase extends Case {
-		public SubCase(int caseNumber) {
+	private class War extends Case {
+		private BigDecimal[] naomisBlocks;
+		private BigDecimal[] kensBlocks;
+		private int numberOfBlocks;
+
+		public War(int caseNumber, int numberOfBlocks, BigDecimal[] naomisBlocks, BigDecimal[] kensBlocks) {
 			super(caseNumber);
+			this.numberOfBlocks = numberOfBlocks;
+			this.naomisBlocks = naomisBlocks;
+			this.kensBlocks = kensBlocks;
+		}
+
+		public int getNumberOfBlocks() {
+			return numberOfBlocks;
+		}
+
+		public BigDecimal[] getNaomisBlocks() {
+			return naomisBlocks;
+		}
+
+		public BigDecimal[] getKensBlocks() {
+			return kensBlocks;
 		}
 	}
 
-	// TODO Scan in a single case
-	private SubCase scanCase(BufferedReader reader, int caseNumber) throws NumberFormatException, IOException {
-		return new SubCase(caseNumber);
+	private War scanCase(BufferedReader reader, int caseNumber) throws NumberFormatException, IOException {
+		int startingBlocks = Integer.parseInt(reader.readLine());
+
+		String[] naomisBlocksAsStrings = reader.readLine().split(" ");
+		BigDecimal[] naomisBlocks = convertStringsToBigDecimals(naomisBlocksAsStrings);
+		Arrays.sort(naomisBlocks);
+
+		String[] kensBlocksAsStrings = reader.readLine().split(" ");
+		BigDecimal[] kensBlocks = convertStringsToBigDecimals(kensBlocksAsStrings);
+		Arrays.sort(kensBlocks);
+
+		return new War(caseNumber, startingBlocks, naomisBlocks, kensBlocks);
+	}
+
+	private BigDecimal[] convertStringsToBigDecimals(String[] blocksAsStrings) {
+		BigDecimal[] blocks = new BigDecimal[blocksAsStrings.length];
+		for (int blockIndex = 0; blockIndex < blocksAsStrings.length; blockIndex++) {
+			String block = blocksAsStrings[blockIndex];
+			blocks[blockIndex] = new BigDecimal(block);
+		}
+		return blocks;
 	}
 
 	// TODO Solve the problem
 	public void solve() {
-		for (SubCase problemCase : cases) {
-			String solution = null;
+		for (War problemCase : cases) {
+			System.out.println(Arrays.toString(problemCase.getNaomisBlocks()));
+			System.out.println(Arrays.toString(problemCase.getKensBlocks()));
+			System.out.println();
+
+			int numberOfBlocks = problemCase.getNumberOfBlocks();
+			BigDecimal[] naomisBlocks = problemCase.getNaomisBlocks();
+			BigDecimal[] kensBlocks = problemCase.getKensBlocks();
+
+			int war = war(numberOfBlocks, naomisBlocks, kensBlocks);
+			int deceitfulWar = deceitfulWar(numberOfBlocks, naomisBlocks, kensBlocks);
+
+			String solution = deceitfulWar + " " + war;
 			problemCase.setSolution(solution);
 		}
+	}
+
+	private int war(int numberOfBlocks, BigDecimal[] naomisOriginalBlocks, BigDecimal[] kensOriginalBlocks) {
+		BigDecimal[] naomisBlocks = Arrays.copyOf(naomisOriginalBlocks, naomisOriginalBlocks.length);
+		BigDecimal[] kensBlocks = Arrays.copyOf(kensOriginalBlocks, kensOriginalBlocks.length);
+
+		int kenWins = 0;
+
+		for (int currentBlockIndex = numberOfBlocks - 1; currentBlockIndex >= 0; currentBlockIndex--) {
+			if (kensBlocks[currentBlockIndex].compareTo(naomisBlocks[currentBlockIndex]) > 0) {
+				kenWins++;
+			} else {
+				BigDecimal tempBlock = kensBlocks[0];
+				System.arraycopy(kensBlocks, 1, kensBlocks, 0, currentBlockIndex);
+				kensBlocks[currentBlockIndex] = tempBlock;
+			}
+		}
+
+		return numberOfBlocks - kenWins;
+	}
+
+	private int deceitfulWar(int numberOfBlocks, BigDecimal[] naomisOriginalBlocks, BigDecimal[] kensOriginalBlocks) {
+		BigDecimal[] naomisBlocks = Arrays.copyOf(naomisOriginalBlocks, naomisOriginalBlocks.length);
+		BigDecimal[] kensBlocks = Arrays.copyOf(kensOriginalBlocks, kensOriginalBlocks.length);
+
+		int naomiWins = 0;
+
+		for (int currentBlockIndex = numberOfBlocks - 1; currentBlockIndex >= 0; currentBlockIndex--) {
+			if (naomisBlocks[currentBlockIndex].compareTo(kensBlocks[currentBlockIndex]) > 0) {
+				naomiWins++;
+			} else {
+				BigDecimal tempBlock = naomisBlocks[0];
+				System.arraycopy(naomisBlocks, 1, naomisBlocks, 0, currentBlockIndex);
+				naomisBlocks[currentBlockIndex] = tempBlock;
+			}
+		}
+
+		return naomiWins;
 	}
 
 	/*
