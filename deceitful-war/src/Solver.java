@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Solver {
-	private static final String PROBLEM = "d-small";
+	private static final String PROBLEM = "d-large";
 
 	private List<War> cases = new ArrayList<War>();
 
