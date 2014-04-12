@@ -7,11 +7,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Solver {
-	private List<Case> cases = new ArrayList<Case>();
+	private static final String PROBLEM = "a-small";
 
-	public Solver() {
+	// TODO Modify for sub-class of Case
+	private List<SubCase> cases = new ArrayList<SubCase>();
+
+	private class SubCase extends Case {
+		public SubCase(int caseNumber) {
+			super(caseNumber);
+		}
 	}
 
+	// TODO Scan in a single case
+	private SubCase scanCase(BufferedReader reader, int caseNumber) throws NumberFormatException, IOException {
+		return new SubCase(caseNumber);
+	}
+
+	// TODO Solve the problem
+	public void solve() {
+		for (SubCase problemCase : cases) {
+			String solution = null;
+			problemCase.setSolution(solution);
+		}
+	}
+
+	/*
+	 * Do not need to modify anything below here
+	 */
 	private void scanInput(String inputFile) {
 		BufferedReader reader = null;
 		try {
@@ -33,29 +55,13 @@ public class Solver {
 		}
 	}
 
-	private Case scanCase(BufferedReader reader, int caseNumber)
-			throws NumberFormatException, IOException {
-		// TODO Scan in a single case
-		return new Case(caseNumber);
-	}
-
-	public void solve() {
-		for (Case problemCase : cases) {
-			// TODO Solve the problem
-			String solution = null;
-			problemCase.setSolution(solution);
-		}
-	}
-
 	private void output(String outputFile) {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
 			for (Case problemCase : cases) {
 				StringBuilder stringBuilder = new StringBuilder();
-				stringBuilder.append("Case #")
-						.append(problemCase.getCaseNumber()).append(": ")
-						.append(problemCase.getSolution());
+				stringBuilder.append("Case #").append(problemCase.getCaseNumber()).append(": ").append(problemCase.getSolution());
 				String caseOutput = stringBuilder.toString();
 
 				bufferedWriter.write(caseOutput);
@@ -77,9 +83,9 @@ public class Solver {
 
 	public static void main(String[] args) {
 		Solver solver = new Solver();
-		solver.scanInput("a-small.in");
+		solver.scanInput(PROBLEM + ".in");
 		solver.solve();
-		solver.output("a-small.out");
+		solver.output(PROBLEM + ".out");
 	}
 
 	public class Case {
