@@ -6,13 +6,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class Solver {
 	private static BigDecimal STANDARD_INCOME = new BigDecimal("2.0");
+	private static String PROBLEM = "b-small";
 
 	private List<CookieClickerInput> cases = new ArrayList<CookieClickerInput>();
 
@@ -51,40 +49,29 @@ public class Solver {
 	public void solve() {
 		for (CookieClickerInput problemCase : cases) {
 			BigDecimal currentTime = new BigDecimal(0);
-			BigDecimal currentCookies = new BigDecimal(0);
 			BigDecimal currentIncome = STANDARD_INCOME;
 
-			Map<Integer, BigDecimal> numberOfFarmsWithTimeRemaining = new HashMap<Integer, BigDecimal>();
-			BigDecimal totalTime = howLongToReachTarget(problemCase, currentTime, currentCookies, currentIncome, 0, numberOfFarmsWithTimeRemaining);
+			BigDecimal totalTime = howLongToReachTarget(problemCase, currentTime, currentIncome, problemCase.getTargetCookies());
 
 			String solution = totalTime.setScale(7).toString();
 			problemCase.setSolution(solution);
 		}
 	}
 
-	private BigDecimal howLongToReachTarget(CookieClickerInput problemCase, BigDecimal currentTime, BigDecimal currentCookies, BigDecimal currentIncome,
-			int numberOfFarms, Map<Integer, BigDecimal> numberOfFarmsWithTimeRemaining) {
-		BigDecimal timeToGetRemainingCookies = howLongToGetRemainingCookies(problemCase.getTargetCookies(), currentCookies, currentIncome);
-
-		for (Entry<Integer, BigDecimal> numberOfFarmsEntry : numberOfFarmsWithTimeRemaining.entrySet()) {
-			if (currentTime.add(timeToGetRemainingCookies).compareTo(numberOfFarmsEntry.getValue()) > 0) {
-				return numberOfFarmsEntry.getValue();
-			}
+	// Current cookies is always 0 after buying a farm
+	private BigDecimal howLongToReachTarget(CookieClickerInput problemCase, BigDecimal currentTime, BigDecimal currentIncome,
+			BigDecimal previousTotalTimeToReachTarget) {
+		BigDecimal timeToGetRemainingCookies = problemCase.getTargetCookies().divide(currentIncome, 7, RoundingMode.UP);
+		BigDecimal totalTimeToReachTarget = currentTime.add(timeToGetRemainingCookies);
+		if (totalTimeToReachTarget.compareTo(previousTotalTimeToReachTarget) > 0) {
+			return previousTotalTimeToReachTarget;
 		}
 
-		numberOfFarmsWithTimeRemaining.put(numberOfFarms, currentTime.add(timeToGetRemainingCookies));
-
 		BigDecimal timeToBuildFarm = problemCase.getFarmCost().divide(currentIncome, 7, RoundingMode.UP);
-		currentCookies = currentCookies.add(timeToBuildFarm.multiply(currentIncome));
 		currentTime = currentTime.add(timeToBuildFarm);
-		currentCookies = currentCookies.subtract(problemCase.getFarmCost());
 		currentIncome = currentIncome.add(problemCase.getFarmIncome());
 
-		return howLongToReachTarget(problemCase, currentTime, currentCookies, currentIncome, numberOfFarms++, numberOfFarmsWithTimeRemaining);
-	}
-
-	private BigDecimal howLongToGetRemainingCookies(BigDecimal targetCookies, BigDecimal currentCookies, BigDecimal currentIncome) {
-		return targetCookies.subtract(currentCookies).divide(currentIncome, 7, RoundingMode.UP);
+		return howLongToReachTarget(problemCase, currentTime, currentIncome, totalTimeToReachTarget);
 	}
 
 	/*
@@ -139,9 +126,9 @@ public class Solver {
 
 	public static void main(String[] args) {
 		Solver solver = new Solver();
-		solver.scanInput("a-small.in");
+		solver.scanInput(PROBLEM + ".in");
 		solver.solve();
-		solver.output("a-small.out");
+		solver.output(PROBLEM + ".out");
 	}
 
 	public class Case {
