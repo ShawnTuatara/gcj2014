@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Solver {
 	private static BigDecimal STANDARD_INCOME = new BigDecimal("2.0");
-	private static String PROBLEM = "b-small";
+	private static String PROBLEM = "b-large";
 
 	private List<CookieClickerInput> cases = new ArrayList<CookieClickerInput>();
 
