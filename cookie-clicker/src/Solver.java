@@ -51,27 +51,20 @@ public class Solver {
 			BigDecimal currentTime = new BigDecimal(0);
 			BigDecimal currentIncome = STANDARD_INCOME;
 
-			BigDecimal totalTime = howLongToReachTarget(problemCase, currentTime, currentIncome, problemCase.getTargetCookies());
+			BigDecimal previousTotalTime = problemCase.getTargetCookies().divide(currentIncome, 10, RoundingMode.HALF_UP);
+			BigDecimal newTotalTime = previousTotalTime;
+			do {
+				previousTotalTime = newTotalTime;
+				
+				BigDecimal timeToBuildFarm = problemCase.getFarmCost().divide(currentIncome, 10, RoundingMode.HALF_UP);
+				currentTime = currentTime.add(timeToBuildFarm);
+				currentIncome = currentIncome.add(problemCase.getFarmIncome());
+				newTotalTime = currentTime.add(problemCase.getTargetCookies().divide(currentIncome, 10, RoundingMode.HALF_UP));
+			} while (newTotalTime.compareTo(previousTotalTime) < 0);
 
-			String solution = totalTime.setScale(7, RoundingMode.HALF_DOWN).toString();
+			String solution = previousTotalTime.setScale(7, RoundingMode.HALF_DOWN).toString();
 			problemCase.setSolution(solution);
 		}
-	}
-
-	// Current cookies is always 0 after buying a farm
-	private BigDecimal howLongToReachTarget(CookieClickerInput problemCase, BigDecimal currentTime, BigDecimal currentIncome,
-			BigDecimal previousTotalTimeToReachTarget) {
-		BigDecimal timeToGetRemainingCookies = problemCase.getTargetCookies().divide(currentIncome, 10, RoundingMode.HALF_UP);
-		BigDecimal totalTimeToReachTarget = currentTime.add(timeToGetRemainingCookies);
-		if (totalTimeToReachTarget.compareTo(previousTotalTimeToReachTarget) > 0) {
-			return previousTotalTimeToReachTarget;
-		}
-
-		BigDecimal timeToBuildFarm = problemCase.getFarmCost().divide(currentIncome, 10, RoundingMode.HALF_UP);
-		currentTime = currentTime.add(timeToBuildFarm);
-		currentIncome = currentIncome.add(problemCase.getFarmIncome());
-
-		return howLongToReachTarget(problemCase, currentTime, currentIncome, totalTimeToReachTarget);
 	}
 
 	/*
