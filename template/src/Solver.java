@@ -9,38 +9,27 @@ import java.util.List;
 public class Solver {
 	private static final String PROBLEM = "a-small";
 
-	// TODO Modify for sub-class of Case
-	private List<SubCase> cases = new ArrayList<SubCase>();
+	// TODO Solve a single case
+	private ProblemCase solveCase(BufferedReader reader, int caseNumber) throws NumberFormatException, IOException {
+		ProblemCase problemCase = new ProblemCase(caseNumber);
 
-	private class SubCase extends Case {
-		public SubCase(int caseNumber) {
-			super(caseNumber);
-		}
-	}
+		problemCase.setSolution("");
 
-	// TODO Scan in a single case
-	private SubCase scanCase(BufferedReader reader, int caseNumber) throws NumberFormatException, IOException {
-		return new SubCase(caseNumber);
-	}
-
-	// TODO Solve the problem
-	public void solve() {
-		for (SubCase problemCase : cases) {
-			String solution = null;
-			problemCase.setSolution(solution);
-		}
+		return problemCase;
 	}
 
 	/*
 	 * Do not need to modify anything below here
 	 */
-	private void scanInput(String inputFile) {
+	private List<ProblemCase> cases = new ArrayList<ProblemCase>();
+
+	private void solve(String inputFile) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(inputFile));
 			int numberOfCases = Integer.parseInt(reader.readLine());
 			for (int caseNumber = 1; caseNumber <= numberOfCases; caseNumber++) {
-				cases.add(scanCase(reader, caseNumber));
+				cases.add(solveCase(reader, caseNumber));
 			}
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
@@ -59,7 +48,7 @@ public class Solver {
 		BufferedWriter bufferedWriter = null;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-			for (Case problemCase : cases) {
+			for (ProblemCase problemCase : cases) {
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append("Case #").append(problemCase.getCaseNumber()).append(": ").append(problemCase.getSolution());
 				String caseOutput = stringBuilder.toString();
@@ -83,17 +72,16 @@ public class Solver {
 
 	public static void main(String[] args) {
 		Solver solver = new Solver();
-		solver.scanInput(PROBLEM + ".in");
-		solver.solve();
+		solver.solve(PROBLEM + ".in");
 		solver.output(PROBLEM + ".out");
 	}
 
-	public class Case {
+	public class ProblemCase {
 		private final int caseNumber;
 
 		private String solution;
 
-		public Case(int caseNumber) {
+		public ProblemCase(int caseNumber) {
 			this.caseNumber = caseNumber;
 		}
 
